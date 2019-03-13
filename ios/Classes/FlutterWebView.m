@@ -235,7 +235,15 @@
     NSString* handlerName = [call arguments];
     if (handlerName != nil) {
         [_bridge registerHandler:handlerName handler:^(id data, WVJBResponseCallback responseCallback) {
-            responseCallback(data);
+            [self->_channel invokeMethod:@"jsBridge" arguments:data result:^(id  _Nullable result) {
+                if ([FlutterError isEqual:result]) {
+
+                } else if([FlutterMethodNotImplemented isEqual:result]) {
+
+                } else {
+                    responseCallback(result);
+                }
+            }];
         }];
         result(nil);
     } else {
