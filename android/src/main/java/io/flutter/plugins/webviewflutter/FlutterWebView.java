@@ -4,8 +4,9 @@
 
 package io.flutter.plugins.webviewflutter;
 
+import android.annotation.TargetApi;
 import android.content.Context;
-import android.util.Log;
+import android.os.Build;
 import android.view.View;
 import android.webkit.WebStorage;
 import android.webkit.WebView;
@@ -26,10 +27,10 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     private final WVJBWebView webView;
     private final MethodChannel methodChannel;
     private Context context;
+    private final FlutterWebViewClient flutterWebViewClient;
 
     @SuppressWarnings("unchecked")
     FlutterWebView(Context context, BinaryMessenger messenger, int id, Map<String, Object> params) {
-        Log.e("FlutterWebView", context + "");
         this.context = context;
         webView = new WVJBWebView(context);
         // Allow local storage.
@@ -38,11 +39,14 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         methodChannel = new MethodChannel(messenger, "plugins.flutter.io/webview_" + id);
         methodChannel.setMethodCallHandler(this);
 
+        flutterWebViewClient = new FlutterWebViewClient(methodChannel);
         applySettings((Map<String, Object>) params.get("settings"));
 
         if (params.containsKey(JS_CHANNEL_NAMES_FIELD)) {
             registerJavaScriptChannelNames((List<String>) params.get(JS_CHANNEL_NAMES_FIELD));
         }
+
+        webView.setWebViewClient(flutterWebViewClient);
 
         if (params.containsKey("initialUrl")) {
             String url = (String) params.get("initialUrl");
@@ -145,6 +149,7 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         result.success(null);
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     private void evaluateJavaScript(MethodCall methodCall, final Result result) {
         String jsString = (String) methodCall.arguments;
         if (jsString == null) {
@@ -188,24 +193,19 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
             WVJBWebView.WVJBHandler<String, String> handler = new WVJBWebView.WVJBHandler<String, String>() {
                 @Override
                 public void handler(String s, final WVJBWebView.WVJBResponseCallback<String> wvjbResponseCallback) {
-                    Log.e("registerHandler", s);
                     methodChannel.invokeMethod("jsBridge", s, new Result() {
                         @Override
                         public void success(Object o) {
-                            Log.e("registerHandler/success", o.toString());
                             wvjbResponseCallback.onResult((String) o);
                         }
 
                         @Override
                         public void error(String s, String s1, Object o) {
-                            Log.e("registerHandler/error", o.toString());
-
                             wvjbResponseCallback.onResult(s);
                         }
 
                         @Override
                         public void notImplemented() {
-                            Log.e("registerHandler/notImplemented", "");
 
 
                         }
@@ -224,6 +224,9 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
             switch (key) {
                 case "jsMode":
                     updateJsMode((Integer) settings.get(key));
+                    break;
+                case "hasNavigationDelegate":
+                    flutterWebViewClient.setHasNavigationDelegate((boolean) settings.get(key));
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown WebView setting: " + key);
