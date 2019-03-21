@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #import "FlutterWebView.h"
+#import "FLTWKNavigationDelegate.h"
 #import "JavaScriptChannelHandler.h"
 #import "WKWebViewJavascriptBridge.h"
 
@@ -41,6 +42,7 @@
   NSString* _currentUrl;
   // The set of registered JavaScript channel names.
   NSMutableSet* _javaScriptChannelNames;
+  FLTWKNavigationDelegate* _navigationDelegate;
   WKWebViewJavascriptBridge* _bridge;
 }
 
@@ -66,6 +68,8 @@
     configuration.userContentController = userContentController;
 
     _webView = [[WKWebView alloc] initWithFrame:frame configuration:configuration];
+    _navigationDelegate = [[FLTWKNavigationDelegate alloc] initWithChannel:_channel];
+    _webView.navigationDelegate = _navigationDelegate;
     __weak __typeof__(self) weakSelf = self;
     [_channel setMethodCallHandler:^(FlutterMethodCall* call, FlutterResult result) {
       [weakSelf onMethodCall:call result:result];
@@ -263,10 +267,13 @@
 - (void)applySettings:(NSDictionary<NSString*, id>*)settings {
   for (NSString* key in settings) {
     if ([key isEqualToString:@"jsMode"]) {
-      NSNumber* mode = settings[key];
-      [self updateJsMode:mode];
+        NSNumber* mode = settings[key];
+        [self updateJsMode:mode];
+    } else if ([key isEqualToString:@"hasNavigationDelegate"]) {
+        NSNumber* hasDartNavigationDelegate = settings[key];
+        _navigationDelegate.hasDartNavigationDelegate = [hasDartNavigationDelegate boolValue];
     } else {
-      NSLog(@"webview_flutter: unknown setting key: %@", key);
+        NSLog(@"webview_flutter: unknown setting key: %@", key);
     }
   }
 }

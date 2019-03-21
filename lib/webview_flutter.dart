@@ -67,6 +67,9 @@ enum NavigationDecision {
 /// See also: [WebView.navigationDelegate].
 typedef NavigationDecision NavigationDelegate(NavigationRequest navigation);
 
+/// Signature for when a [WebView] has finished loading a page.
+typedef void PageFinishedCallback(String url);
+
 final RegExp _validChannelNames = RegExp('^[a-zA-Z_][a-zA-Z0-9]*\$');
 
 /// A named channel for receiving messaged from JavaScript code running inside a web view.
@@ -116,6 +119,7 @@ class WebView extends StatefulWidget {
     this.navigationDelegate,
     this.gestureRecognizers,
     this.handlerName,
+    this.onPageFinished,
   })  : assert(javascriptMode != null),
         super(key: key);
 
@@ -194,6 +198,18 @@ class WebView extends StatefulWidget {
   ///     * When a navigationDelegate is set HTTP requests do not include the HTTP referer header.
   final NavigationDelegate navigationDelegate;
 
+  /// Invoked when a page has finished loading.
+  ///
+  /// This is invoked only for the main frame.
+  ///
+  /// When [onPageFinished] is invoked on Android, the page being rendered may
+  /// not be updated yet.
+  ///
+  /// When invoked on iOS or Android, any Javascript code that is embedded
+  /// directly in the HTML has been loaded and code injected with
+  /// [WebViewController.evaluateJavascript] can assume this.
+  final PageFinishedCallback onPageFinished;
+
   /// Js bridge name
   final String handlerName;
 
@@ -271,6 +287,7 @@ class _WebViewState extends State<WebView> {
       _WebSettings.fromWidget(widget),
       widget.javascriptChannels,
       widget.navigationDelegate,
+      widget.onPageFinished,
     );
     _controller.complete(controller);
     if (widget.onWebViewCreated != null) {
@@ -370,6 +387,7 @@ class WebViewController {
     this._settings,
     Set<JavascriptChannel> javascriptChannels,
     this._navigationDelegate,
+    this._onPageFinished,
   ) : _channel = MethodChannel('plugins.flutter.io/webview_$id') {
     _updateJavascriptChannelsFromSet(javascriptChannels);
     _channel.setMethodCallHandler(_onMethodCall);
@@ -380,6 +398,8 @@ class WebViewController {
   NavigationDelegate _navigationDelegate;
 
   _WebSettings _settings;
+
+  final PageFinishedCallback _onPageFinished;
 
   // Maps a channel name to a channel.
   Map<String, JavascriptChannel> _javascriptChannels =
@@ -405,6 +425,12 @@ class WebViewController {
         final bool allowNavigation = _navigationDelegate == null ||
             _navigationDelegate(request) == NavigationDecision.navigate;
         return allowNavigation;
+      case 'onPageFinished':
+        if (_onPageFinished != null) {
+          _onPageFinished(call.arguments['url']);
+        }
+
+        return null;
     }
     throw MissingPluginException(
         '${call.method} was invoked but has no handler');
@@ -567,6 +593,10 @@ class WebViewController {
   ///
   /// The Future completes with an error if a JavaScript error occurred, or on iOS, if the type of the
   /// evaluated expression is not supported as described above.
+  ///   ///
+  /// When evaluating Javascript in a [WebView], it is best practice to wait for
+  /// the [WebView.onPageFinished] callback. This guarantees all the Javascript
+  /// embedded in the main frame HTML has been loaded.
   Future<String> evaluateJavascript(String javascriptString) async {
     if (_settings.javascriptMode == JavascriptMode.disabled) {
       throw FlutterError(
