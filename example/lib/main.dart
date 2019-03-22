@@ -156,10 +156,6 @@ class SampleMenu extends StatelessWidget {
                   enabled: controller.hasData,
                 ),
                 const PopupMenuItem<MenuOptions>(
-                  value: MenuOptions.toast,
-                  child: Text('Make a toast'),
-                ),
-                const PopupMenuItem<MenuOptions>(
                   value: MenuOptions.listCookies,
                   child: Text('List cookies'),
                 ),
