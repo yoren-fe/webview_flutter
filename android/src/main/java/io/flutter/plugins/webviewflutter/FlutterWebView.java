@@ -7,6 +7,7 @@ package io.flutter.plugins.webviewflutter;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.os.Handler;
 import android.view.View;
 import android.webkit.WebStorage;
 import android.webkit.WebView;
@@ -29,11 +30,13 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     private final MethodChannel methodChannel;
     private Context context;
     private final FlutterWebViewClient flutterWebViewClient;
+    private final Handler platformThreadHandler;
 
     @SuppressWarnings("unchecked")
     FlutterWebView(Context context, BinaryMessenger messenger, int id, Map<String, Object> params) {
         this.context = context;
         webView = new WVJBWebView(context);
+        platformThreadHandler = new Handler(context.getMainLooper());
         // Allow local storage.
         webView.getSettings().setDomStorageEnabled(true);
         WebView.setWebContentsDebuggingEnabled(true);
@@ -254,7 +257,7 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     private void registerJavaScriptChannelNames(List<String> channelNames) {
         for (String channelName : channelNames) {
             webView.addJavascriptInterface(
-                    new JavaScriptChannel(methodChannel, channelName), channelName);
+                    new JavaScriptChannel(methodChannel, channelName, platformThreadHandler), channelName);
         }
     }
 
