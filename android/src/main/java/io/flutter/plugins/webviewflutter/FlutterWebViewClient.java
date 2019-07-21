@@ -1,3 +1,7 @@
+// Copyright 2019 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 package io.flutter.plugins.webviewflutter;
 
 import android.annotation.TargetApi;
@@ -6,16 +10,17 @@ import android.util.Log;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
 import androidx.annotation.NonNull;
-
+import androidx.webkit.WebViewClientCompat;
+import io.flutter.plugin.common.MethodChannel;
 import java.util.HashMap;
 import java.util.Map;
 
-import androidx.webkit.WebViewClientCompat;
-import io.flutter.plugin.common.MethodChannel;
-
-public class FlutterWebViewClient {
+// We need to use WebViewClientCompat to get
+// shouldOverrideUrlLoading(WebView view, WebResourceRequest request)
+// invoked by the webview on older Android devices, without it pages that use iframes will
+// be broken when a navigationDelegate is set on Android version earlier than N.
+class FlutterWebViewClient {
     private static final String TAG = "FlutterWebViewClient";
     private final MethodChannel methodChannel;
     private boolean hasNavigationDelegate;

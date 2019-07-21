@@ -938,10 +938,7 @@ public class WVJBWebView extends WebView {
         public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
             if (webViewClient != null) {
                 webViewClient.onReceivedSslError(view, handler, error);
-            } else {
-                super.onReceivedSslError(view, handler, error);
             }
-
         }
 
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)

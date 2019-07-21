@@ -8,29 +8,29 @@
 #import "WKWebViewJavascriptBridge.h"
 
 @implementation FLTWebViewFactory {
-  NSObject<FlutterBinaryMessenger>* _messenger;
+    NSObject<FlutterBinaryMessenger>* _messenger;
 }
 
 - (instancetype)initWithMessenger:(NSObject<FlutterBinaryMessenger>*)messenger {
-  self = [super init];
-  if (self) {
-    _messenger = messenger;
-  }
-  return self;
+    self = [super init];
+    if (self) {
+        _messenger = messenger;
+    }
+    return self;
 }
 
 - (NSObject<FlutterMessageCodec>*)createArgsCodec {
-  return [FlutterStandardMessageCodec sharedInstance];
+    return [FlutterStandardMessageCodec sharedInstance];
 }
 
 - (NSObject<FlutterPlatformView>*)createWithFrame:(CGRect)frame
                                    viewIdentifier:(int64_t)viewId
                                         arguments:(id _Nullable)args {
-  FLTWebViewController* webviewController = [[FLTWebViewController alloc] initWithFrame:frame
-                                                                         viewIdentifier:viewId
-                                                                              arguments:args
-                                                                        binaryMessenger:_messenger];
-  return webviewController;
+    FLTWebViewController* webviewController = [[FLTWebViewController alloc] initWithFrame:frame
+                                                                           viewIdentifier:viewId
+                                                                                arguments:args
+                                                                          binaryMessenger:_messenger];
+    return webviewController;
 }
 
 @end
@@ -122,19 +122,23 @@
 }
 
 - (void)onUpdateSettings:(FlutterMethodCall*)call result:(FlutterResult)result {
-  [self applySettings:[call arguments]];
-  result(nil);
+    NSString* error = [self applySettings:[call arguments]];
+    if (error == nil) {
+        result(nil);
+        return;
+    }
+    result([FlutterError errorWithCode:@"updateSettings_failed" message:error details:nil]);
 }
 
 - (void)onLoadUrl:(FlutterMethodCall*)call result:(FlutterResult)result {
-  NSString* url = [call arguments];
-  if (![self loadUrl:url]) {
-    result([FlutterError errorWithCode:@"loadUrl_failed"
-                               message:@"Failed parsing the URL"
-                               details:[NSString stringWithFormat:@"URL was: '%@'", url]]);
-  } else {
-    result(nil);
-  }
+    if (![self loadRequest:[call arguments]]) {
+        result([FlutterError
+                errorWithCode:@"loadUrl_failed"
+                message:@"Failed parsing the URL"
+                details:[NSString stringWithFormat:@"Request was: '%@'", [call arguments]]]);
+    } else {
+        result(nil);
+    }
 }
 
 - (void)onCanGoBack:(FlutterMethodCall*)call result:(FlutterResult)result {
@@ -239,7 +243,7 @@
     NSString* handlerName = [call arguments];
     if (handlerName != nil) {
         [_bridge registerHandler:handlerName handler:^(id data, WVJBResponseCallback responseCallback) {
-            [self->_channel invokeMethod:@"jsBridge" arguments:data result:^(id  _Nullable result) {
+            [self->_channel invokeMethod:@"onJsBridgeCall" arguments:data result:^(id  _Nullable result) {
                 if ([FlutterError isEqual:result]) {
 
                 } else if([FlutterMethodNotImplemented isEqual:result]) {
@@ -264,18 +268,27 @@
   }
 }
 
-- (void)applySettings:(NSDictionary<NSString*, id>*)settings {
-  for (NSString* key in settings) {
-    if ([key isEqualToString:@"jsMode"]) {
-        NSNumber* mode = settings[key];
-        [self updateJsMode:mode];
-    } else if ([key isEqualToString:@"hasNavigationDelegate"]) {
-        NSNumber* hasDartNavigationDelegate = settings[key];
-        _navigationDelegate.hasDartNavigationDelegate = [hasDartNavigationDelegate boolValue];
-    } else {
-        NSLog(@"webview_flutter: unknown setting key: %@", key);
+// Returns nil when successful, or an error message when one or more keys are unknown.
+- (NSString*)applySettings:(NSDictionary<NSString*, id>*)settings {
+    NSMutableArray<NSString*>* unknownKeys = [[NSMutableArray alloc] init];
+    for (NSString* key in settings) {
+        if ([key isEqualToString:@"jsMode"]) {
+            NSNumber* mode = settings[key];
+            [self updateJsMode:mode];
+        } else if ([key isEqualToString:@"hasNavigationDelegate"]) {
+            NSNumber* hasDartNavigationDelegate = settings[key];
+            _navigationDelegate.hasDartNavigationDelegate = [hasDartNavigationDelegate boolValue];
+        } else if ([key isEqualToString:@"debuggingEnabled"]) {
+            // no-op debugging is always enabled on iOS.
+        } else {
+            [unknownKeys addObject:key];
+        }
     }
-  }
+    if ([unknownKeys count] == 0) {
+        return nil;
+    }
+    return [NSString stringWithFormat:@"webview_flutter: unknown setting keys: {%@}",
+            [unknownKeys componentsJoinedByString:@", "]];
 }
 
 - (void)updateJsMode:(NSNumber*)mode {
@@ -292,14 +305,37 @@
   }
 }
 
-- (bool)loadUrl:(NSString*)url {
-  NSURL* nsUrl = [NSURL URLWithString:url];
-  if (!nsUrl) {
+- (bool)loadRequest:(NSDictionary<NSString*, id>*)request {
+    if (!request) {
+        return false;
+    }
+    
+    NSString* url = request[@"url"];
+    if ([url isKindOfClass:[NSString class]]) {
+        id headers = request[@"headers"];
+        if ([headers isKindOfClass:[NSDictionary class]]) {
+            return [self loadUrl:url withHeaders:headers];
+        } else {
+            return [self loadUrl:url];
+        }
+    }
+    
     return false;
-  }
-  NSURLRequest* req = [NSURLRequest requestWithURL:nsUrl];
-  [_webView loadRequest:req];
-  return true;
+}
+
+- (bool)loadUrl:(NSString*)url {
+    return [self loadUrl:url withHeaders:[NSMutableDictionary dictionary]];
+}
+
+- (bool)loadUrl:(NSString*)url withHeaders:(NSDictionary<NSString*, NSString*>*)headers {
+    NSURL* nsUrl = [NSURL URLWithString:url];
+    if (!nsUrl) {
+        return false;
+    }
+    NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:nsUrl];
+    [request setAllHTTPHeaderFields:headers];
+    [_webView loadRequest:request];
+    return true;
 }
 
 - (void)registerJavaScriptChannels:(NSSet*)channelNames

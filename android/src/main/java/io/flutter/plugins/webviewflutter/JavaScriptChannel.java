@@ -7,9 +7,7 @@ package io.flutter.plugins.webviewflutter;
 import android.os.Handler;
 import android.os.Looper;
 import android.webkit.JavascriptInterface;
-
 import io.flutter.plugin.common.MethodChannel;
-
 import java.util.HashMap;
 
 /**
@@ -25,12 +23,13 @@ class JavaScriptChannel {
     private final Handler platformThreadHandler;
 
     /**
-     * @param methodChannel         the Flutter WebView method channel to which JS messages are sent
+     * @param methodChannel the Flutter WebView method channel to which JS messages are sent
      * @param javaScriptChannelName the name of the JavaScript channel, this is sent over the method
-     *                              channel with each message to let the Dart code know which JavaScript channel the message
-     *                              was sent through
+     *     channel with each message to let the Dart code know which JavaScript channel the message
+     *     was sent through
      */
-    JavaScriptChannel(MethodChannel methodChannel, String javaScriptChannelName, Handler platformThreadHandler) {
+    JavaScriptChannel(
+            MethodChannel methodChannel, String javaScriptChannelName, Handler platformThreadHandler) {
         this.methodChannel = methodChannel;
         this.javaScriptChannelName = javaScriptChannelName;
         this.platformThreadHandler = platformThreadHandler;
@@ -50,7 +49,7 @@ class JavaScriptChannel {
                         methodChannel.invokeMethod("javascriptChannelMessage", arguments);
                     }
                 };
-        if (platformThreadHandler.getLooper() == Looper.getMainLooper()) {
+        if (platformThreadHandler.getLooper() == Looper.myLooper()) {
             postMessageRunnable.run();
         } else {
             platformThreadHandler.post(postMessageRunnable);
