@@ -27,7 +27,7 @@ abstract class WebViewPlatformCallbacksHandler {
   /// Invoked by [WebViewPlatformController] when a page has finished loading.
   void onPageFinished(String url);
 
-  void onJsBridgeCall(MethodCall methodCall);
+  Future<dynamic> onJsBridgeCall(MethodCall methodCall);
 }
 
 /// Interface for talking to the webview's platform implementation.

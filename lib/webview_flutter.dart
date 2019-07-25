@@ -413,9 +413,11 @@ class _PlatformCallbacksHandler implements WebViewPlatformCallbacksHandler {
   }
 
   @override
-  void onJsBridgeCall(MethodCall methodCall) {
+  Future<dynamic> onJsBridgeCall(MethodCall methodCall) {
     if (_widget.onJsBridgeCall != null) {
-      _widget.onJsBridgeCall(methodCall);
+      return _widget.onJsBridgeCall(methodCall);
+    } else {
+      return null;
     }
   }
 }
