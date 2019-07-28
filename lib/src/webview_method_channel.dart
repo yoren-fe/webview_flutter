@@ -5,7 +5,6 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 import '../platform_interface.dart';
 
@@ -109,12 +108,6 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
   @override
   Future<void> registerHandler(String handlerName) {
     return _channel.invokeMethod("registerHandler", handlerName);
-  }
-
-  @override
-  Future<dynamic> setJsBridgeMethodCallHandler(OnJsBridgeCall onJsBridgeCall) {
-    // TODO: implement setMethodCallHandler
-    return null;
   }
 
   /// Method channel mplementation for [WebViewPlatform.clearCookies].

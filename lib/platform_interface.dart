@@ -160,12 +160,6 @@ abstract class WebViewPlatformController {
     throw UnimplementedError(
         "WebView registerHandler is not implemented on the current platform");
   }
-
-  Future<dynamic> setJsBridgeMethodCallHandler(
-      OnJsBridgeCall onJsBridgeCall) async {
-    throw UnimplementedError(
-        "WebView setMethodCallHandler is not implemented on the current platform");
-  }
 }
 
 /// Settings for configuring a WebViewPlatform.
