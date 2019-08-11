@@ -6,11 +6,11 @@ package io.flutter.plugins.webviewflutter;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.os.Handler;
 import android.view.View;
 import android.webkit.WebStorage;
-import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import java.util.Collections;
@@ -29,23 +29,29 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     private static final String JS_CHANNEL_NAMES_FIELD = "javascriptChannelNames";
     private final InputAwareWebView webView;
     private final MethodChannel methodChannel;
-    private Context context;
     private final FlutterWebViewClient flutterWebViewClient;
     private final Handler platformThreadHandler;
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     @SuppressWarnings("unchecked")
     FlutterWebView(
-            Context context,
+            final Context context,
             BinaryMessenger messenger,
             int id,
             Map<String, Object> params,
             final View containerView) {
-        this.context = context;
+
+        DisplayListenerProxy displayListenerProxy = new DisplayListenerProxy();
+        DisplayManager displayManager =
+                (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
+        displayListenerProxy.onPreWebViewInitialization(displayManager);
         webView = new InputAwareWebView(context, containerView);
+        displayListenerProxy.onPostWebViewInitialization(displayManager);
+
         platformThreadHandler = new Handler(context.getMainLooper());
         // Allow local storage.
         webView.getSettings().setDomStorageEnabled(true);
-        WebView.setWebContentsDebuggingEnabled(true);
+
         methodChannel = new MethodChannel(messenger, "plugins.flutter.io/webview_" + id);
         methodChannel.setMethodCallHandler(this);
 
@@ -56,6 +62,7 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
             registerJavaScriptChannelNames((List<String>) params.get(JS_CHANNEL_NAMES_FIELD));
         }
 
+        updateAutoMediaPlaybackPolicy((Integer) params.get("autoMediaPlaybackPolicy"));
         if (params.containsKey("initialUrl")) {
             String url = (String) params.get("initialUrl");
             webView.loadUrl(url);
@@ -183,6 +190,20 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         result.success(null);
     }
 
+    private void updateAutoMediaPlaybackPolicy(int mode) {
+        // This is the index of the AutoMediaPlaybackPolicy enum, index 1 is always_allow, for all
+        // other values we require a user gesture.
+        boolean requireUserGesture = mode != 1;
+        webView.getSettings().setMediaPlaybackRequiresUserGesture(requireUserGesture);
+    }
+
+    private void registerJavaScriptChannelNames(List<String> channelNames) {
+        for (String channelName : channelNames) {
+            webView.addJavascriptInterface(
+                    new JavaScriptChannel(methodChannel, channelName, platformThreadHandler), channelName);
+        }
+    }
+
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private void evaluateJavaScript(MethodCall methodCall, final Result result) {
         String jsString = (String) methodCall.arguments;
@@ -222,35 +243,31 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     }
 
     private void registerHandler(final MethodCall methodCall, MethodChannel.Result result) {
-        if (context != null) {
-            final String handlerName = (String) methodCall.arguments;
-            WVJBWebView.WVJBHandler<String, String> handler = new WVJBWebView.WVJBHandler<String, String>() {
-                @Override
-                public void handler(String s, final WVJBWebView.WVJBResponseCallback<String> wvjbResponseCallback) {
-                    methodChannel.invokeMethod("onJsBridgeCall", s, new Result() {
-                        @Override
-                        public void success(Object o) {
-                            wvjbResponseCallback.onResult((String) o);
-                        }
+        final String handlerName = (String) methodCall.arguments;
+        WVJBWebView.WVJBHandler<String, String> handler = new WVJBWebView.WVJBHandler<String, String>() {
+            @Override
+            public void handler(String s, final WVJBWebView.WVJBResponseCallback<String> wvjbResponseCallback) {
+                methodChannel.invokeMethod("onJsBridgeCall", s, new Result() {
+                    @Override
+                    public void success(Object o) {
+                        wvjbResponseCallback.onResult((String) o);
+                    }
 
-                        @Override
-                        public void error(String s, String s1, Object o) {
-                            wvjbResponseCallback.onResult(s);
-                        }
+                    @Override
+                    public void error(String s, String s1, Object o) {
+                        wvjbResponseCallback.onResult(s);
+                    }
 
-                        @Override
-                        public void notImplemented() {
+                    @Override
+                    public void notImplemented() {
 
 
-                        }
-                    });
-                }
-            };
-            webView.registerHandler(handlerName, handler);
-            result.success(null);
-        } else {
-            result.error("context is null", null, null);
-        }
+                    }
+                });
+            }
+        };
+        webView.registerHandler(handlerName, handler);
+        result.success(null);
     }
 
     private void applySettings(Map<String, Object> settings) {
@@ -288,13 +305,6 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
                 break;
             default:
                 throw new IllegalArgumentException("Trying to set unknown JavaScript mode: " + mode);
-        }
-    }
-
-    private void registerJavaScriptChannelNames(List<String> channelNames) {
-        for (String channelName : channelNames) {
-            webView.addJavascriptInterface(
-                    new JavaScriptChannel(methodChannel, channelName, platformThreadHandler), channelName);
         }
     }
 

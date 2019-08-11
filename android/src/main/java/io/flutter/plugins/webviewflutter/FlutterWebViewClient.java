@@ -7,6 +7,7 @@ package io.flutter.plugins.webviewflutter;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
