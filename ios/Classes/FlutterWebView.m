@@ -244,6 +244,7 @@
   
   if (_webView != nil) {
     _bridge = [WKWebViewJavascriptBridge bridgeForWebView:_webView];
+    [_bridge setMethodChannel:_channel];
     NSString* handlerName = [call arguments];
     if (handlerName != nil) {
         [_bridge registerHandler:handlerName handler:^(id data, WVJBResponseCallback responseCallback) {

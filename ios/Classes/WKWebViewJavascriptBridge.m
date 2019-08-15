@@ -15,6 +15,7 @@
     __weak id<WKNavigationDelegate> _webViewDelegate;
     long _uniqueId;
     WebViewJavascriptBridgeBase *_base;
+    FlutterMethodChannel *_channel;
 }
 
 /* API
@@ -27,6 +28,10 @@
     [bridge _setupInstance:webView];
     [bridge reset];
     return bridge;
+}
+
+- (void)setMethodChannel:(FlutterMethodChannel *)channel {
+    _channel = channel;
 }
 
 - (void)send:(id)data {
@@ -102,6 +107,10 @@
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     if (webView != _webView) { return; }
+    
+    if (_channel != nil) {
+        [_channel invokeMethod:@"onPageFinished" arguments:@{@"url" : webView.URL.absoluteString}];
+    }
     
     __strong typeof(_webViewDelegate) strongDelegate = _webViewDelegate;
     if (strongDelegate && [strongDelegate respondsToSelector:@selector(webView:didFinishNavigation:)]) {

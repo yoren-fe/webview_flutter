@@ -10,7 +10,7 @@
 #endif
 
 #if defined supportsWKWebView
-
+#import <Flutter/Flutter.h>
 #import <Foundation/Foundation.h>
 #import "WebViewJavascriptBridgeBase.h"
 #import <WebKit/WebKit.h>
@@ -20,6 +20,7 @@
 + (instancetype)bridgeForWebView:(WKWebView*)webView;
 + (void)enableLogging;
 
+- (void)setMethodChannel:(FlutterMethodChannel*)channel;
 - (void)registerHandler:(NSString*)handlerName handler:(WVJBHandler)handler;
 - (void)removeHandler:(NSString*)handlerName;
 - (void)callHandler:(NSString*)handlerName;
