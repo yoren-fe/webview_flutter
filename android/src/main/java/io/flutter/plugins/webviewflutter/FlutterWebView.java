@@ -289,6 +289,9 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
 
                     InputAwareWebView.setWebContentsDebuggingEnabled(debuggingEnabled);
                     break;
+                case "userAgent":
+                    updateUserAgent((String) settings.get(key));
+                    break;
                 default:
                     throw new IllegalArgumentException("Unknown WebView setting: " + key);
             }
@@ -308,9 +311,14 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         }
     }
 
-    @Override
-    public void dispose() {
-        methodChannel.setMethodCallHandler(null);
-        webView.dispose();
-    }
+  private void updateUserAgent(String userAgent) {
+    webView.getSettings().setUserAgentString(userAgent);
+  }
+
+  @Override
+  public void dispose() {
+    methodChannel.setMethodCallHandler(null);
+    webView.dispose();
+    webView.destroy();
+  }
 }

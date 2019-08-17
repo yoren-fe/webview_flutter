@@ -240,8 +240,34 @@
   }
 }
 
+// Returns nil when successful, or an error message when one or more keys are unknown.
+- (NSString*)applySettings:(NSDictionary<NSString*, id>*)settings {
+  NSMutableArray<NSString*>* unknownKeys = [[NSMutableArray alloc] init];
+  for (NSString* key in settings) {
+    if ([key isEqualToString:@"jsMode"]) {
+      NSNumber* mode = settings[key];
+      [self updateJsMode:mode];
+    } else if ([key isEqualToString:@"hasNavigationDelegate"]) {
+      NSNumber* hasDartNavigationDelegate = settings[key];
+      _navigationDelegate.hasDartNavigationDelegate = [hasDartNavigationDelegate boolValue];
+    } else if ([key isEqualToString:@"debuggingEnabled"]) {
+      // no-op debugging is always enabled on iOS.
+    } else if ([key isEqualToString:@"userAgent"]) {
+      NSString* userAgent = settings[key];
+      [self updateUserAgent:[userAgent isEqual:[NSNull null]] ? nil : userAgent];
+    } else {
+      [unknownKeys addObject:key];
+    }
+  }
+  if ([unknownKeys count] == 0) {
+    return nil;
+  }
+  return [NSString stringWithFormat:@"webview_flutter: unknown setting keys: {%@}",
+                                    [unknownKeys componentsJoinedByString:@", "]];
+}
+
 - (void)registerHandler:(FlutterMethodCall*)call result:(FlutterResult)result {
-  
+
   if (_webView != nil) {
     _bridge = [WKWebViewJavascriptBridge bridgeForWebView:_webView];
     [_bridge setMethodChannel:_channel];
@@ -271,29 +297,6 @@
                 message:@"webview is nil"
                 details:nil]);
   }
-}
-
-// Returns nil when successful, or an error message when one or more keys are unknown.
-- (NSString*)applySettings:(NSDictionary<NSString*, id>*)settings {
-    NSMutableArray<NSString*>* unknownKeys = [[NSMutableArray alloc] init];
-    for (NSString* key in settings) {
-        if ([key isEqualToString:@"jsMode"]) {
-            NSNumber* mode = settings[key];
-            [self updateJsMode:mode];
-        } else if ([key isEqualToString:@"hasNavigationDelegate"]) {
-            NSNumber* hasDartNavigationDelegate = settings[key];
-            _navigationDelegate.hasDartNavigationDelegate = [hasDartNavigationDelegate boolValue];
-        } else if ([key isEqualToString:@"debuggingEnabled"]) {
-            // no-op debugging is always enabled on iOS.
-        } else {
-            [unknownKeys addObject:key];
-        }
-    }
-    if ([unknownKeys count] == 0) {
-        return nil;
-    }
-    return [NSString stringWithFormat:@"webview_flutter: unknown setting keys: {%@}",
-            [unknownKeys componentsJoinedByString:@", "]];
 }
 
 - (void)updateJsMode:(NSNumber*)mode {
@@ -336,7 +339,7 @@
     if (!request) {
         return false;
     }
-    
+
     NSString* url = request[@"url"];
     if ([url isKindOfClass:[NSString class]]) {
         id headers = request[@"headers"];
@@ -346,7 +349,7 @@
             return [self loadUrl:url];
         }
     }
-    
+
     return false;
 }
 
@@ -379,6 +382,14 @@
                                injectionTime:WKUserScriptInjectionTimeAtDocumentStart
                             forMainFrameOnly:NO];
     [userContentController addUserScript:wrapperScript];
+  }
+}
+
+- (void)updateUserAgent:(NSString*)userAgent {
+  if (@available(iOS 9.0, *)) {
+    [_webView setCustomUserAgent:userAgent];
+  } else {
+    NSLog(@"Updating UserAgent is not supported for Flutter WebViews prior to iOS 9.");
   }
 }
 
