@@ -110,6 +110,12 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
     return _channel.invokeMethod("registerHandler", handlerName);
   }
 
+  @override
+  Future<void> callHandler(String handlerName, {Map<String, dynamic> params}) {
+    params['handlerName'] = handlerName ?? '';
+    return _channel.invokeMethod("callHandler", params);
+  }
+
   /// Method channel mplementation for [WebViewPlatform.clearCookies].
   static Future<bool> clearCookies() {
     return _cookieManagerChannel

@@ -643,6 +643,10 @@ class WebViewController {
   Future<void> registerHandler(String jsBridgeHandlerName) async {
     return _webViewPlatformController.registerHandler(jsBridgeHandlerName);
   }
+
+  Future<void> callHandler(String handlerName, {Map<String, dynamic> params}) async {
+    return _webViewPlatformController.callHandler(handlerName, params: params);
+  }
 }
 
 /// Manages cookies pertaining to all [WebView]s.

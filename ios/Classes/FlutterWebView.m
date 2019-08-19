@@ -120,6 +120,8 @@
     [self clearCache:result];
   } else if ([[call method] isEqualToString:@"registerHandler"]) {
     [self registerHandler:call result:result];
+  } else if ([[call method] isEqualToString:@"callHandler"]) {
+      [self callHandler:call];
   } else {
     result(FlutterMethodNotImplemented);
   }
@@ -298,6 +300,20 @@
                 details:nil]);
   }
 }
+
+- (void)callHandler:(FlutterMethodCall*)call {
+    if (_webView != nil && _bridge != nil) {
+        NSDictionary* arguments = [call arguments];
+        NSString* handlerName = arguments[@"handlerName"];
+        if (handlerName != nil) {
+            NSData *argumentsData = [NSJSONSerialization dataWithJSONObject:arguments options:NSJSONWritingPrettyPrinted error:nil];
+            NSString *argumentsString = [[NSString alloc]initWithData:argumentsData encoding:NSUTF8StringEncoding];
+            [_bridge callHandler:handlerName data:argumentsString ];
+        }
+    }
+}
+
+
 
 - (void)updateJsMode:(NSNumber*)mode {
   WKPreferences* preferences = [[_webView configuration] preferences];

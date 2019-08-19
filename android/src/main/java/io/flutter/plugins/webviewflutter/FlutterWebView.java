@@ -13,6 +13,8 @@ import android.view.View;
 import android.webkit.WebStorage;
 import android.webkit.WebViewClient;
 
+import org.json.JSONObject;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -135,6 +137,9 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
                 break;
             case "registerHandler":
                 registerHandler(methodCall, result);
+                break;
+            case "callHandler":
+                callHandler(methodCall);
                 break;
             default:
                 result.notImplemented();
@@ -270,6 +275,11 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         result.success(null);
     }
 
+    private void callHandler(MethodCall methodCall) {
+        final Map<String, Object> arguments = (Map<String, Object>) methodCall.arguments;
+        webView.callHandler(arguments.get("handlerName").toString(), new JSONObject(arguments).toString());
+    }
+
     private void applySettings(Map<String, Object> settings) {
         for (String key : settings.keySet()) {
             switch (key) {
@@ -311,14 +321,14 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         }
     }
 
-  private void updateUserAgent(String userAgent) {
-    webView.getSettings().setUserAgentString(userAgent);
-  }
+    private void updateUserAgent(String userAgent) {
+        webView.getSettings().setUserAgentString(userAgent);
+    }
 
-  @Override
-  public void dispose() {
-    methodChannel.setMethodCallHandler(null);
-    webView.dispose();
-    webView.destroy();
-  }
+    @Override
+    public void dispose() {
+        methodChannel.setMethodCallHandler(null);
+        webView.dispose();
+        webView.destroy();
+    }
 }
