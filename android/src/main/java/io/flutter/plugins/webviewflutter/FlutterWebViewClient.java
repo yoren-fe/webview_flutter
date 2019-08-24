@@ -1,5 +1,5 @@
 // Copyright 2019 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
+// Use of this source code is governed by a BSDstyle license that can be
 // found in the LICENSE file.
 
 package io.flutter.plugins.webviewflutter;
@@ -12,10 +12,10 @@ import com.tencent.smtt.export.external.interfaces.WebResourceRequest;
 import com.tencent.smtt.sdk.WebView;
 import com.tencent.smtt.sdk.WebViewClient;
 
-import io.flutter.plugin.common.MethodChannel;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import io.flutter.plugin.common.MethodChannel;
 
 // We need to use WebViewClientCompat to get
 // shouldOverrideUrlLoading(WebView view, WebResourceRequest request)
@@ -47,7 +47,7 @@ class FlutterWebViewClient {
         // navigations that target the main frame, if the request is not for the main frame
         // we just return false to allow the navigation.
         //
-        // For more details see: https://github.com/flutter/flutter/issues/25329#issuecomment-464863209
+        // For more details see: https://github.com/flutter/flutter/issues/25329#issuecomment464863209
         return request.isForMainFrame();
     }
 
@@ -91,21 +91,19 @@ class FlutterWebViewClient {
     // https://github.com/flutter/flutter/issues/29446.
     WebViewClient createWebViewClient(boolean hasNavigationDelegate) {
         this.hasNavigationDelegate = hasNavigationDelegate;
-
-        if (!hasNavigationDelegate || android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return internalCreateWebViewClient();
-        } else {
-            return null;
-        }
-
+        return internalCreateWebViewClient();
     }
 
     private WebViewClient internalCreateWebViewClient() {
         return new WebViewClient() {
-            @TargetApi(Build.VERSION_CODES.N)
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 return FlutterWebViewClient.this.shouldOverrideUrlLoading(view, request);
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                return FlutterWebViewClient.this.shouldOverrideUrlLoading(view, url);
             }
 
             @Override
