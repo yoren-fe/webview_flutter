@@ -10,8 +10,10 @@ import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.os.Handler;
 import android.view.View;
-import android.webkit.WebStorage;
-import android.webkit.WebViewClient;
+
+import com.tencent.smtt.sdk.ValueCallback;
+import com.tencent.smtt.sdk.WebStorage;
+import com.tencent.smtt.sdk.WebViewClient;
 
 import org.json.JSONObject;
 
@@ -217,7 +219,7 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         }
         webView.evaluateJavascript(
                 jsString,
-                new android.webkit.ValueCallback<String>() {
+                new ValueCallback<String>() {
                     @Override
                     public void onReceiveValue(String value) {
                         result.success(value);

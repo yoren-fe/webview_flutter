@@ -7,13 +7,13 @@ package io.flutter.plugins.webviewflutter;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import androidx.annotation.NonNull;
-import androidx.webkit.WebViewClientCompat;
+
+import com.tencent.smtt.export.external.interfaces.WebResourceRequest;
+import com.tencent.smtt.sdk.WebView;
+import com.tencent.smtt.sdk.WebViewClient;
+
 import io.flutter.plugin.common.MethodChannel;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -94,9 +94,10 @@ class FlutterWebViewClient {
 
         if (!hasNavigationDelegate || android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return internalCreateWebViewClient();
+        } else {
+            return null;
         }
 
-        return internalCreateWebViewClientCompat();
     }
 
     private WebViewClient internalCreateWebViewClient() {
@@ -105,26 +106,6 @@ class FlutterWebViewClient {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 return FlutterWebViewClient.this.shouldOverrideUrlLoading(view, request);
-            }
-
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                FlutterWebViewClient.this.onPageFinished(view, url);
-            }
-        };
-    }
-
-    private WebViewClientCompat internalCreateWebViewClientCompat() {
-        return new WebViewClientCompat() {
-            @Override
-            public boolean shouldOverrideUrlLoading(
-                    @NonNull WebView view, @NonNull WebResourceRequest request) {
-                return FlutterWebViewClient.this.shouldOverrideUrlLoading(view, request);
-            }
-
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                return FlutterWebViewClient.this.shouldOverrideUrlLoading(view, url);
             }
 
             @Override

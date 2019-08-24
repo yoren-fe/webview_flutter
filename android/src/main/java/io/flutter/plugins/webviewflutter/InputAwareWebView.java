@@ -7,7 +7,6 @@ package io.flutter.plugins.webviewflutter;
 import android.content.Context;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.webkit.WebView;
 
 import io.flutter.plugins.webviewflutter.view.WVJBWebView;
 

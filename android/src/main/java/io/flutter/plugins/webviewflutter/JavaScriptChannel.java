@@ -7,6 +7,7 @@ package io.flutter.plugins.webviewflutter;
 import android.os.Handler;
 import android.os.Looper;
 import android.webkit.JavascriptInterface;
+
 import io.flutter.plugin.common.MethodChannel;
 import java.util.HashMap;
 
