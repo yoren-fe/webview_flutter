@@ -48,6 +48,7 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
                 (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
         displayListenerProxy.onPreWebViewInitialization(displayManager);
         webView = new InputAwareWebView(context, containerView);
+        registerDismissLoadingMaskHandler();
         displayListenerProxy.onPostWebViewInitialization(displayManager);
 
         platformThreadHandler = new Handler(context.getMainLooper());
@@ -69,6 +70,16 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
             String url = (String) params.get("initialUrl");
             webView.loadUrl(url);
         }
+
+    }
+
+    private void registerDismissLoadingMaskHandler() {
+        webView.registerHandler("dismissLoadingMask", new WVJBWebView.WVJBHandler() {
+            @Override
+            public void handler(Object data, WVJBWebView.WVJBResponseCallback callback) {
+                methodChannel.invokeMethod("dismissLoadingMask", null);
+            }
+        });
     }
 
     @Override

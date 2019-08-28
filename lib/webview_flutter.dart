@@ -144,6 +144,7 @@ class WebView extends StatefulWidget {
     this.onPageFinished,
     this.debuggingEnabled = false,
     this.userAgent,
+    this.dismissLoadingMask,
     this.initialMediaPlaybackPolicy =
         AutoMediaPlaybackPolicy.require_user_action_for_all_media_types,
   })  : assert(javascriptMode != null),
@@ -184,6 +185,8 @@ class WebView extends StatefulWidget {
   }
 
   final OnJsBridgeCall onJsBridgeCall;
+
+  final Function dismissLoadingMask;
 
   /// If not null invoked once the web view is created.
   final WebViewCreatedCallback onWebViewCreated;
@@ -473,6 +476,15 @@ class _PlatformCallbacksHandler implements WebViewPlatformCallbacksHandler {
   Future<dynamic> onJsBridgeCall(MethodCall methodCall) {
     if (_widget.onJsBridgeCall != null) {
       return _widget.onJsBridgeCall(methodCall);
+    } else {
+      return null;
+    }
+  }
+
+  @override
+  void dismissLoadingMask() {
+    if (_widget.dismissLoadingMask != null) {
+      return _widget.dismissLoadingMask();
     } else {
       return null;
     }

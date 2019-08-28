@@ -74,6 +74,11 @@
     _webView = [[WKWebView alloc] initWithFrame:frame configuration:configuration];
     _navigationDelegate = [[FLTWKNavigationDelegate alloc] initWithChannel:_channel];
     _webView.navigationDelegate = _navigationDelegate;
+
+    _bridge = [WKWebViewJavascriptBridge bridgeForWebView:_webView];
+    [_bridge setMethodChannel:_channel];
+    [self registerDismissLoadingMaskHandler];
+
     __weak __typeof__(self) weakSelf = self;
     [_channel setMethodCallHandler:^(FlutterMethodCall* call, FlutterResult result) {
       [weakSelf onMethodCall:call result:result];
@@ -87,6 +92,12 @@
     }
   }
   return self;
+}
+
+- (void)registerDismissLoadingMaskHandler {
+    [_bridge registerHandler:@"dismissLoadingMask" handler:^(id data, WVJBResponseCallback responseCallback) {
+        [self->_channel invokeMethod:@"dismissLoadingMask" arguments:nil result:nil];
+    }];
 }
 
 - (UIView*)view {
@@ -269,10 +280,6 @@
 }
 
 - (void)registerHandler:(FlutterMethodCall*)call result:(FlutterResult)result {
-
-  if (_webView != nil) {
-    _bridge = [WKWebViewJavascriptBridge bridgeForWebView:_webView];
-    [_bridge setMethodChannel:_channel];
     NSString* handlerName = [call arguments];
     if (handlerName != nil) {
         [_bridge registerHandler:handlerName handler:^(id data, WVJBResponseCallback responseCallback) {
@@ -293,12 +300,6 @@
                   message:@"handlerName is nil"
                   details:nil]);
     }
-  } else {
-      result([FlutterError
-          errorWithCode:@"register_handler_failed"
-                message:@"webview is nil"
-                details:nil]);
-  }
 }
 
 - (void)callHandler:(FlutterMethodCall*)call {

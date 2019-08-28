@@ -28,6 +28,8 @@ abstract class WebViewPlatformCallbacksHandler {
   void onPageFinished(String url);
 
   Future<dynamic> onJsBridgeCall(MethodCall methodCall);
+
+  void dismissLoadingMask();
 }
 
 /// Interface for talking to the webview's platform implementation.
