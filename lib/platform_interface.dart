@@ -164,6 +164,12 @@ abstract class WebViewPlatformController {
         "WebView removeJavascriptChannels is not implemented on the current platform");
   }
 
+  /// Returns the title of the currently loaded page.
+  Future<String> getTitle() {
+    throw UnimplementedError(
+        "WebView getTitle is not implemented on the current platform");
+  }
+
   Future<void> registerHandler(String handlerName) async {
     throw UnimplementedError(
         "WebView registerHandler is not implemented on the current platform");

@@ -652,6 +652,11 @@ class WebViewController {
     return _webViewPlatformController.evaluateJavascript(javascriptString);
   }
 
+  /// Returns the title of the currently loaded page.
+  Future<String> getTitle() {
+    return _webViewPlatformController.getTitle();
+  }
+
   Future<void> registerHandler(String jsBridgeHandlerName) async {
     return _webViewPlatformController.registerHandler(jsBridgeHandlerName);
   }
