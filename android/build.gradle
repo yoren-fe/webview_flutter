@@ -20,7 +20,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.1'
+        classpath 'com.android.tools.build:gradle:3.5.0'
     }
 }
 rootProject.allprojects {
@@ -31,10 +31,10 @@ rootProject.allprojects {
 }
 apply plugin: 'com.android.library'
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 20
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     lintOptions {

@@ -338,6 +338,8 @@ public class WVJBWebView extends WebView {
         settings.setAppCacheEnabled(false);
         settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
         settings.setJavaScriptEnabled(true);
+        settings.setSavePassword(false);
+        settings.setAllowUniversalAccessFromFileURLs(false);
         settings.setLoadWithOverviewMode(true);
         settings.setAppCachePath(APP_CACHE_DIRNAME);
         settings.setUseWideViewPort(true);
