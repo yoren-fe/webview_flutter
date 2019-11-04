@@ -337,12 +337,18 @@ public class WVJBWebView extends WebView {
         settings.setAllowFileAccess(false);
         settings.setAppCacheEnabled(false);
         settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
-        settings.setJavaScriptEnabled(true);
         settings.setSavePassword(false);
         settings.setAllowUniversalAccessFromFileURLs(false);
         settings.setLoadWithOverviewMode(true);
         settings.setAppCachePath(APP_CACHE_DIRNAME);
         settings.setUseWideViewPort(true);
+        settings.setAllowFileAccessFromFileURLs(false);
+        settings.setSaveFormData(false);
+        settings.setAllowContentAccess(true);
+        settings.setRenderPriority(WebSettings.RenderPriority.HIGH);
+        this.removeJavascriptInterface("accessibility");
+        this.removeJavascriptInterface("accessibilityTraversal");
+        this.removeJavascriptInterface("searchBoxJavaBridge_");
         super.setWebChromeClient(mWebChromeClient);
         super.setWebViewClient(mWebViewClient);
 

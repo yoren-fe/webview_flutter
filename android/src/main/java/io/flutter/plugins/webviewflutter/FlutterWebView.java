@@ -10,6 +10,7 @@ import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.os.Handler;
 import android.view.View;
+import android.webkit.WebSettings;
 import android.webkit.WebStorage;
 import android.webkit.WebViewClient;
 
@@ -52,8 +53,6 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         displayListenerProxy.onPostWebViewInitialization(displayManager);
 
         platformThreadHandler = new Handler(context.getMainLooper());
-        // Allow local storage.
-        webView.getSettings().setDomStorageEnabled(true);
 
         methodChannel = new MethodChannel(messenger, "plugins.flutter.io/webview_" + id);
         methodChannel.setMethodCallHandler(this);
