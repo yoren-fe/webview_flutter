@@ -6,6 +6,7 @@ import android.annotation.TargetApi;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.util.Log;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
@@ -41,12 +42,16 @@ class DisplayListenerProxy {
 
   private ArrayList<DisplayListener> listenersBeforeWebView;
 
-  /** Should be called prior to the webview's initialization. */
+  /**
+   * Should be called prior to the webview's initialization.
+   */
   void onPreWebViewInitialization(DisplayManager displayManager) {
     listenersBeforeWebView = yoinkDisplayListeners(displayManager);
   }
 
-  /** Should be called after the webview's initialization. */
+  /**
+   * Should be called after the webview's initialization.
+   */
   void onPostWebViewInitialization(final DisplayManager displayManager) {
     final ArrayList<DisplayListener> webViewListeners = yoinkDisplayListeners(displayManager);
     // We recorded the list of listeners prior to initializing webview, any new listeners we see

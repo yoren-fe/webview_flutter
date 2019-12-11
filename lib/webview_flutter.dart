@@ -75,6 +75,9 @@ enum NavigationDecision {
 typedef FutureOr<NavigationDecision> NavigationDelegate(
     NavigationRequest navigation);
 
+/// Signature for when a [WebView] has started loading a page.
+typedef void PageStartedCallback(String url);
+
 /// Signature for when a [WebView] has finished loading a page.
 typedef void PageFinishedCallback(String url);
 
@@ -145,6 +148,7 @@ class WebView extends StatefulWidget {
     this.javascriptChannels,
     this.navigationDelegate,
     this.gestureRecognizers,
+    this.onPageStarted,
     this.onPageFinished,
     this.debuggingEnabled = false,
     this.userAgent,
@@ -264,6 +268,9 @@ class WebView extends StatefulWidget {
   ///       webview, and frames will be opened in the main frame.
   ///     * When a navigationDelegate is set HTTP requests do not include the HTTP referer header.
   final NavigationDelegate navigationDelegate;
+
+  /// Invoked when a page starts loading.
+  final PageStartedCallback onPageStarted;
 
   /// Invoked when a page has finished loading.
   ///
@@ -458,6 +465,13 @@ class _PlatformCallbacksHandler implements WebViewPlatformCallbacksHandler {
         await _widget.navigationDelegate(request) ==
             NavigationDecision.navigate;
     return allowNavigation;
+  }
+
+  @override
+  void onPageStarted(String url) {
+    if (_widget.onPageStarted != null) {
+      _widget.onPageStarted(url);
+    }
   }
 
   @override
@@ -667,7 +681,8 @@ class WebViewController {
     return _webViewPlatformController.registerHandler(jsBridgeHandlerName);
   }
 
-  Future<void> callHandler(String handlerName, {Map<String, dynamic> params}) async {
+  Future<void> callHandler(String handlerName,
+      {Map<String, dynamic> params}) async {
     return _webViewPlatformController.callHandler(handlerName, params: params);
   }
 }

@@ -47,12 +47,16 @@ final class ThreadedInputConnectionProxyAdapterView extends View {
     setVisibility(VISIBLE);
   }
 
-  /** Returns whether or not this is currently asynchronously acquiring an input connection. */
+  /**
+   * Returns whether or not this is currently asynchronously acquiring an input connection.
+   */
   boolean isTriggerDelayed() {
     return triggerDelayed;
   }
 
-  /** Sets whether or not this should use its previously cached input connection. */
+  /**
+   * Sets whether or not this should use its previously cached input connection.
+   */
   void setLocked(boolean locked) {
     isLocked = locked;
   }

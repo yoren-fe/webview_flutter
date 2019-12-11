@@ -32,7 +32,8 @@ public class WebViewFlutterPlugin implements FlutterPlugin {
    * <p>Registration should eventually be handled automatically by v2 of the
    * GeneratedPluginRegistrant. https://github.com/flutter/flutter/issues/42694
    */
-  public WebViewFlutterPlugin() {}
+  public WebViewFlutterPlugin() {
+  }
 
   /**
    * Registers a plugin implementation that uses the stable {@code io.flutter.plugin.common}

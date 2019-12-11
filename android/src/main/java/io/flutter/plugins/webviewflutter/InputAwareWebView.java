@@ -8,7 +8,6 @@ import android.content.Context;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.webkit.WebView;
 
 import io.flutter.plugins.webviewflutter.view.WVJBWebView;
 
@@ -61,7 +60,9 @@ final class InputAwareWebView extends WVJBWebView {
     proxyAdapterView.setLocked(true);
   }
 
-  /** Sets the proxy adapter view back to its default behavior. */
+  /**
+   * Sets the proxy adapter view back to its default behavior.
+   */
   void unlockInputConnection() {
     if (proxyAdapterView == null) {
       return;
@@ -70,7 +71,9 @@ final class InputAwareWebView extends WVJBWebView {
     proxyAdapterView.setLocked(false);
   }
 
-  /** Restore the original InputConnection, if needed. */
+  /**
+   * Restore the original InputConnection, if needed.
+   */
   void dispose() {
     resetInputConnection();
   }
