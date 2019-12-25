@@ -107,11 +107,11 @@
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     if (webView != _webView) { return; }
-    
+
     if (_channel != nil) {
         [_channel invokeMethod:@"onPageFinished" arguments:@{@"url" : webView.URL.absoluteString}];
     }
-    
+
     __strong typeof(_webViewDelegate) strongDelegate = _webViewDelegate;
     if (strongDelegate && [strongDelegate respondsToSelector:@selector(webView:didFinishNavigation:)]) {
         [strongDelegate webView:webView didFinishNavigation:navigation];
@@ -158,7 +158,7 @@
         decisionHandler(WKNavigationActionPolicyCancel);
         return;
     }
-    
+
     if (strongDelegate && [strongDelegate respondsToSelector:@selector(webView:decidePolicyForNavigationAction:decisionHandler:)]) {
         [_webViewDelegate webView:webView decidePolicyForNavigationAction:navigationAction decisionHandler:decisionHandler];
     } else {
@@ -168,7 +168,7 @@
 
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation {
     if (webView != _webView) { return; }
-    
+
     __strong typeof(_webViewDelegate) strongDelegate = _webViewDelegate;
     if (strongDelegate && [strongDelegate respondsToSelector:@selector(webView:didStartProvisionalNavigation:)]) {
         [strongDelegate webView:webView didStartProvisionalNavigation:navigation];
@@ -178,7 +178,7 @@
 
 - (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {
     if (webView != _webView) { return; }
-    
+
     __strong typeof(_webViewDelegate) strongDelegate = _webViewDelegate;
     if (strongDelegate && [strongDelegate respondsToSelector:@selector(webView:didFailNavigation:withError:)]) {
         [strongDelegate webView:webView didFailNavigation:navigation withError:error];
@@ -187,7 +187,7 @@
 
 - (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation withError:(NSError *)error {
     if (webView != _webView) { return; }
-    
+
     __strong typeof(_webViewDelegate) strongDelegate = _webViewDelegate;
     if (strongDelegate && [strongDelegate respondsToSelector:@selector(webView:didFailProvisionalNavigation:withError:)]) {
         [strongDelegate webView:webView didFailProvisionalNavigation:navigation withError:error];
