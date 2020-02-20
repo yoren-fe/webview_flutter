@@ -3,8 +3,18 @@
 //
 
 #import "GeneratedPluginRegistrant.h"
+
+#if __has_include(<e2e/E2EPlugin.h>)
 #import <e2e/E2EPlugin.h>
-#import <webview_flutter/WebViewFlutterPlugin.h>
+#else
+@import e2e;
+#endif
+
+#if __has_include(<webview_flutter/FLTWebViewFlutterPlugin.h>)
+#import <webview_flutter/FLTWebViewFlutterPlugin.h>
+#else
+@import webview_flutter;
+#endif
 
 @implementation GeneratedPluginRegistrant
 
