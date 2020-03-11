@@ -63,7 +63,7 @@ packages:
       name: e2e
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.2.4+1"
+    version: "0.2.4+4"
   file:
     dependency: transitive
     description:
@@ -134,7 +134,7 @@ packages:
     source: hosted
     version: "1.6.4"
   pedantic:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: pedantic
       url: "https://pub.flutter-io.cn"
@@ -256,7 +256,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.3.19+7"
+    version: "0.3.19+9"
   xml:
     dependency: transitive
     description:
