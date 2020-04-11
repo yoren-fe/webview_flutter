@@ -1,3 +1,11 @@
+## 0.3.20
+
+* Added support for receiving web resource loading errors. See `WebView.onWebResourceError`.
+
+## 0.3.19+10
+
+* Replace deprecated `getFlutterEngine` call on Android.
+
 ## 0.3.19+9
 
 * Remove example app's iOS workspace settings.

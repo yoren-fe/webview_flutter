@@ -53,7 +53,7 @@ public class WebViewFlutterPlugin implements FlutterPlugin {
 
   @Override
   public void onAttachedToEngine(FlutterPluginBinding binding) {
-    BinaryMessenger messenger = binding.getFlutterEngine().getDartExecutor();
+    BinaryMessenger messenger = binding.getBinaryMessenger();
     binding
         .getFlutterEngine()
         .getPlatformViewsController()
