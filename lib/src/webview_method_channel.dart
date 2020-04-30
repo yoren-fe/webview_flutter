@@ -129,6 +129,28 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
   @override
   Future<String> getTitle() => _channel.invokeMethod<String>("getTitle");
 
+  @override
+  Future<void> scrollTo(int x, int y) {
+    return _channel.invokeMethod<void>('scrollTo', <String, int>{
+      'x': x,
+      'y': y,
+    });
+  }
+
+  @override
+  Future<void> scrollBy(int x, int y) {
+    return _channel.invokeMethod<void>('scrollBy', <String, int>{
+      'x': x,
+      'y': y,
+    });
+  }
+
+  @override
+  Future<int> getScrollX() => _channel.invokeMethod<int>("getScrollX");
+
+  @override
+  Future<int> getScrollY() => _channel.invokeMethod<int>("getScrollY");
+
   /// Method channel implementation for [WebViewPlatform.clearCookies].
   @override
   Future<void> registerHandler(String handlerName) {
