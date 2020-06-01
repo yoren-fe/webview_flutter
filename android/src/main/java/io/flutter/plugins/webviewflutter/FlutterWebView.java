@@ -324,7 +324,7 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
   private void getScrollY(Result result) {
     result.success(webView.getScrollY());
   }
-
+  
   private void registerHandler(final MethodCall methodCall, MethodChannel.Result result) {
     final String handlerName = (String) methodCall.arguments;
     WVJBWebView.WVJBHandler<String, String> handler = new WVJBWebView.WVJBHandler<String, String>() {
