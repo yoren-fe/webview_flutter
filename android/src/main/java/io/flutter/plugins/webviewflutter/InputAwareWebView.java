@@ -228,9 +228,9 @@ final class InputAwareWebView extends WVJBWebView {
 
   private boolean isCalledFromListPopupWindowShow() {
     StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-    for (int i = 0; i < stackTraceElements.length; i++) {
-      if (stackTraceElements[i].getClassName().equals(ListPopupWindow.class.getCanonicalName())
-          && stackTraceElements[i].getMethodName().equals("show")) {
+    for (StackTraceElement stackTraceElement : stackTraceElements) {
+      if (stackTraceElement.getClassName().equals(ListPopupWindow.class.getCanonicalName())
+          && stackTraceElement.getMethodName().equals("show")) {
         return true;
       }
     }

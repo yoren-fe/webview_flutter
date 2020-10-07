@@ -470,7 +470,11 @@ class CreationParams {
   }
 }
 
-typedef WebViewPlatformCreatedCallback = void Function(WebViewPlatformController webViewPlatformController);
+/// Signature for callbacks reporting that a [WebViewPlatformController] was created.
+///
+/// See also the `onWebViewPlatformCreated` argument for [WebViewPlatform.build].
+typedef WebViewPlatformCreatedCallback = void Function(
+    WebViewPlatformController webViewPlatformController);
 
 /// Interface for a platform implementation of a WebView.
 ///

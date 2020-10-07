@@ -55,9 +55,7 @@ public class WebViewFlutterPlugin implements FlutterPlugin {
   public void onAttachedToEngine(FlutterPluginBinding binding) {
     BinaryMessenger messenger = binding.getBinaryMessenger();
     binding
-        .getFlutterEngine()
-        .getPlatformViewsController()
-        .getRegistry()
+        .getPlatformViewRegistry()
         .registerViewFactory(
             "plugins.flutter.io/webview", new WebViewFactory(messenger, /*containerView=*/ null));
     flutterCookieManager = new FlutterCookieManager(messenger);
