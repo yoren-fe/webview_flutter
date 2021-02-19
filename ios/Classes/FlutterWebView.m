@@ -4,6 +4,7 @@
 
 #import "FlutterWebView.h"
 #import "FLTWKNavigationDelegate.h"
+#import "FLTWKProgressionDelegate.h"
 #import "JavaScriptChannelHandler.h"
 #import "WKWebViewJavascriptBridge.h"
 
@@ -65,6 +66,7 @@
   // The set of registered JavaScript channel names.
   NSMutableSet* _javaScriptChannelNames;
   FLTWKNavigationDelegate* _navigationDelegate;
+  FLTWKProgressionDelegate* _progressionDelegate;
   WKWebViewJavascriptBridge* _bridge;
 }
 
@@ -124,6 +126,10 @@
   return self;
 }
 
+- (void)dealloc {
+  if (_progressionDelegate != nil) {
+    [_progressionDelegate stopObservingProgress:_webView];
+  }
 - (void)registerDismissLoadingMaskHandler {
     [_bridge registerHandler:@"dismissLoadingMask" handler:^(id data, WVJBResponseCallback responseCallback) {
         [self->_channel invokeMethod:@"dismissLoadingMask" arguments:nil result:nil];
@@ -338,6 +344,13 @@
     } else if ([key isEqualToString:@"hasNavigationDelegate"]) {
       NSNumber* hasDartNavigationDelegate = settings[key];
       _navigationDelegate.hasDartNavigationDelegate = [hasDartNavigationDelegate boolValue];
+    } else if ([key isEqualToString:@"hasProgressTracking"]) {
+      NSNumber* hasProgressTrackingValue = settings[key];
+      bool hasProgressTracking = [hasProgressTrackingValue boolValue];
+      if (hasProgressTracking) {
+        _progressionDelegate = [[FLTWKProgressionDelegate alloc] initWithWebView:_webView
+                                                                         channel:_channel];
+      }
     } else if ([key isEqualToString:@"debuggingEnabled"]) {
       // no-op debugging is always enabled on iOS.
     } else if ([key isEqualToString:@"gestureNavigationEnabled"]) {
