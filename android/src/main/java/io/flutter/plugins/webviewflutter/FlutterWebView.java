@@ -34,7 +34,7 @@ import io.flutter.plugins.webviewflutter.view.WVJBWebView;
 
 public class FlutterWebView implements PlatformView, MethodCallHandler {
   private static final String JS_CHANNEL_NAMES_FIELD = "javascriptChannelNames";
-  private final InputAwareWebView webView;
+  private final WebView webView;
   private final MethodChannel methodChannel;
   private final FlutterWebViewClient flutterWebViewClient;
   private final Handler platformThreadHandler;
@@ -97,7 +97,13 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     DisplayManager displayManager =
         (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
     displayListenerProxy.onPreWebViewInitialization(displayManager);
-    webView = new InputAwareWebView(context, containerView);
+
+    Boolean usesHybridComposition = (Boolean) params.get("usesHybridComposition");
+    webView =
+        (usesHybridComposition)
+            ? new WebView(context)
+            : new InputAwareWebView(context, containerView);
+
     registerDismissLoadingMaskHandler();
     displayListenerProxy.onPostWebViewInitialization(displayManager);
 
@@ -156,7 +162,9 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
   // of Flutter but used as an override anyway wherever it's actually defined.
   // TODO(mklim): Add the @Override annotation once flutter/engine#9727 rolls to stable.
   public void onInputConnectionUnlocked() {
-    webView.unlockInputConnection();
+    if (webView instanceof InputAwareWebView) {
+      ((InputAwareWebView) webView).unlockInputConnection();
+    }
   }
 
   // @Override
@@ -166,7 +174,9 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
   // of Flutter but used as an override anyway wherever it's actually defined.
   // TODO(mklim): Add the @Override annotation once flutter/engine#9727 rolls to stable.
   public void onInputConnectionLocked() {
-    webView.lockInputConnection();
+    if (webView instanceof InputAwareWebView) {
+      ((InputAwareWebView) webView).lockInputConnection();
+    }
   }
 
   // @Override
@@ -176,7 +186,9 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
   // of Flutter but used as an override anyway wherever it's actually defined.
   // TODO(mklim): Add the @Override annotation once stable passes v1.10.9.
   public void onFlutterViewAttached(View flutterView) {
-    webView.setContainerView(flutterView);
+    if (webView instanceof InputAwareWebView) {
+      ((InputAwareWebView) webView).setContainerView(flutterView);
+    }
   }
 
   // @Override
@@ -186,7 +198,9 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
   // of Flutter but used as an override anyway wherever it's actually defined.
   // TODO(mklim): Add the @Override annotation once stable passes v1.10.9.
   public void onFlutterViewDetached() {
-    webView.setContainerView(null);
+    if (webView instanceof InputAwareWebView) {
+      ((InputAwareWebView) webView).setContainerView(null);
+    }
   }
 
   @Override
@@ -479,7 +493,9 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
   @Override
   public void dispose() {
     methodChannel.setMethodCallHandler(null);
-    webView.dispose();
+    if (webView instanceof InputAwareWebView) {
+      ((InputAwareWebView) webView).dispose();
+    }
     webView.destroy();
   }
 }

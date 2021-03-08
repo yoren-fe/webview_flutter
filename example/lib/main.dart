@@ -32,6 +32,12 @@ class WebViewExample extends StatelessWidget {
       Completer<WebViewController>();
 
   @override
+  void initState() {
+    super.initState();
+    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -86,6 +87,7 @@ class SurfaceAndroidWebView extends AndroidWebView {
     Set<Factory<OneSequenceGestureRecognizer>>? gestureRecognizers,
     required WebViewPlatformCallbacksHandler webViewPlatformCallbacksHandler,
   }) {
+    assert(Platform.isAndroid);
     assert(webViewPlatformCallbacksHandler != null);
     return PlatformViewLink(
       viewType: 'plugins.flutter.io/webview',
@@ -110,6 +112,7 @@ class SurfaceAndroidWebView extends AndroidWebView {
           layoutDirection: TextDirection.rtl,
           creationParams: MethodChannelWebViewPlatform.creationParamsToMap(
             creationParams,
+            usesHybridComposition: true,
           ),
           creationParamsCodec: const StandardMessageCodec(),
         )
@@ -269,9 +272,9 @@ class WebView extends StatefulWidget {
     return _platform!;
   }
 
-  final OnJsBridgeCall? onJsBridgeCall;
+  final OnJsBridgeCall onJsBridgeCall;
 
-  final Function? dismissLoadingMask;
+  final Function dismissLoadingMask;
 
   /// If not null invoked once the web view is created.
   final WebViewCreatedCallback? onWebViewCreated;
@@ -617,16 +620,16 @@ class _PlatformCallbacksHandler implements WebViewPlatformCallbacksHandler {
   @override
   Future<dynamic> onJsBridgeCall(MethodCall methodCall) {
     if (_widget.onJsBridgeCall != null) {
-      return _widget.onJsBridgeCall!.call(methodCall);
+      return _widget.onJsBridgeCall(methodCall);
     } else {
-      return Future.value(null);
+      return null;
     }
   }
 
   @override
   void dismissLoadingMask() {
     if (_widget.dismissLoadingMask != null) {
-      return _widget.dismissLoadingMask?.call();
+      return _widget.dismissLoadingMask();
     } else {
       return null;
     }
@@ -829,7 +832,7 @@ class WebViewController {
   }
 
   Future<void> callHandler(String handlerName,
-      {required Map<String, dynamic> params}) async {
+      {Map<String, dynamic> params}) async {
     return _webViewPlatformController.callHandler(handlerName, params: params);
   }
 }

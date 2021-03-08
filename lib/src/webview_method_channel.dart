@@ -24,7 +24,7 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
 
   static const MethodChannel _cookieManagerChannel = MethodChannel('plugins.flutter.io/cookie_manager');
 
-  Future<dynamic?> _onMethodCall(MethodCall call) async {
+  Future<bool?> _onMethodCall(MethodCall call) async {
     switch (call.method) {
       case 'javascriptChannelMessage':
         final String channel = call.arguments['channel']!;
@@ -168,8 +168,8 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
   }
 
   @override
-  Future<void> callHandler(String handlerName, {required Map<String, dynamic> params}) {
-    params['handlerName'] = handlerName;
+  Future<void> callHandler(String handlerName, {Map<String, dynamic> params}) {
+    params['handlerName'] = handlerName ?? '';
     return _channel.invokeMethod("callHandler", params);
   }
 
@@ -212,13 +212,17 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
   ///
   /// This is used for the `creationParams` argument of the platform views created by
   /// [AndroidWebViewBuilder] and [CupertinoWebViewBuilder].
-  static Map<String, dynamic> creationParamsToMap(CreationParams creationParams) {
+  static Map<String, dynamic> creationParamsToMap(
+    CreationParams creationParams, {
+    bool usesHybridComposition = false,
+  }) {
     return <String, dynamic>{
       'initialUrl': creationParams.initialUrl,
       'settings': _webSettingsToMap(creationParams.webSettings),
       'javascriptChannelNames': creationParams.javascriptChannelNames.toList(),
       'userAgent': creationParams.userAgent,
       'autoMediaPlaybackPolicy': creationParams.autoMediaPlaybackPolicy.index,
+      'usesHybridComposition': usesHybridComposition,
     };
   }
 }

@@ -289,7 +289,7 @@ abstract class WebViewPlatformController {
     throw UnimplementedError("WebView registerHandler is not implemented on the current platform");
   }
 
-  Future<void> callHandler(String handlerName, {required Map<String, dynamic> params}) {
+  Future<void> callHandler(String handlerName, {Map<String, dynamic> params}) {
     throw UnimplementedError("WebView callHandler is not implemented on the current platform");
   }
 
