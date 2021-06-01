@@ -34,7 +34,7 @@ import io.flutter.plugins.webviewflutter.view.WVJBWebView;
 
 public class FlutterWebView implements PlatformView, MethodCallHandler {
   private static final String JS_CHANNEL_NAMES_FIELD = "javascriptChannelNames";
-  private final WebView webView;
+  private final WVJBWebView webView;
   private final MethodChannel methodChannel;
   private final FlutterWebViewClient flutterWebViewClient;
   private final Handler platformThreadHandler;
@@ -101,7 +101,7 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     Boolean usesHybridComposition = (Boolean) params.get("usesHybridComposition");
     webView =
         (usesHybridComposition)
-            ? new WebView(context)
+            ? new WVJBWebView(context)
             : new InputAwareWebView(context, containerView);
 
     registerDismissLoadingMaskHandler();

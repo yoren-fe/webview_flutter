@@ -272,9 +272,9 @@ class WebView extends StatefulWidget {
     return _platform!;
   }
 
-  final OnJsBridgeCall onJsBridgeCall;
+  final OnJsBridgeCall? onJsBridgeCall;
 
-  final Function dismissLoadingMask;
+  final Function? dismissLoadingMask;
 
   /// If not null invoked once the web view is created.
   final WebViewCreatedCallback? onWebViewCreated;
@@ -620,16 +620,16 @@ class _PlatformCallbacksHandler implements WebViewPlatformCallbacksHandler {
   @override
   Future<dynamic> onJsBridgeCall(MethodCall methodCall) {
     if (_widget.onJsBridgeCall != null) {
-      return _widget.onJsBridgeCall(methodCall);
+      return _widget.onJsBridgeCall!(methodCall);
     } else {
-      return null;
+      return Future.value(null);
     }
   }
 
   @override
   void dismissLoadingMask() {
     if (_widget.dismissLoadingMask != null) {
-      return _widget.dismissLoadingMask();
+      return _widget.dismissLoadingMask!();
     } else {
       return null;
     }
@@ -832,7 +832,7 @@ class WebViewController {
   }
 
   Future<void> callHandler(String handlerName,
-      {Map<String, dynamic> params}) async {
+      {required Map<String, dynamic> params}) async {
     return _webViewPlatformController.callHandler(handlerName, params: params);
   }
 }
